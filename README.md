@@ -15,21 +15,21 @@ Aplicación web para administrar productos, consultar existencias y registrar en
 
 ## Inicio rápido con Docker
 
-1. Copia `.env.example` como `.env` y cambia las contraseñas y el secreto JWT.
+1. Copia `.env.example` como `.env` y define contraseñas propias para la base de datos y el usuario administrador, además de un secreto JWT de al menos 32 bytes.
 2. Desde la raíz del repositorio ejecuta `docker compose up --build`.
 3. Abre `http://localhost:4200`. La documentación de la API está en `http://localhost:5080/swagger`.
-4. En el primer inicio, el script crea seis productos de muestra. El contenedor de API crea el usuario administrador y movimientos de demostración.
+4. En una base nueva, el script crea seis productos de muestra. La API crea el administrador y los movimientos iniciales una sola vez.
 
-Credenciales de demostración por defecto: `admin@inventario.local` / `InventoryDemo2026!`. Cambia estos valores en `.env` antes de usar el sistema fuera de una demostración local.
+Para una demostración local, las credenciales iniciales son `admin@inventario.local` / `InventoryDemo2026!`. Cámbialas en `.env` antes de iniciar el entorno.
 
-El script `database/init.sql` se ejecuta automáticamente al crear por primera vez el volumen de PostgreSQL. Para una base existente, ejecútalo manualmente con `psql` antes de iniciar la API. Los scripts de inicialización de Docker no se vuelven a ejecutar sobre un volumen ya creado.
+El script `database/init.sql` se ejecuta automáticamente al crear por primera vez el volumen de PostgreSQL. En una instalación local existente, crea la base y aplica el script con `createdb -h localhost -U postgres inventory` y `psql -h localhost -U postgres -d inventory -f database/init.sql`. Docker no vuelve a ejecutar los scripts de inicialización sobre un volumen ya creado.
 
 ## Desarrollo local
 
-1. Ejecuta PostgreSQL y aplica `database/init.sql`.
+1. Ejecuta PostgreSQL, crea la base `inventory` y aplica `database/init.sql` con los comandos anteriores.
 2. Configura estas variables para la API: `ConnectionStrings__Default`, `Jwt__Secret` (mínimo 32 bytes), `Jwt__Issuer`, `Jwt__Audience`, `Seed__AdminEmail`, `Seed__AdminPassword` y `FrontendOrigin`.
 3. Desde la raíz, ejecuta `dotnet run --project src/Inventory.Api`.
-4. En `frontend`, ejecuta `npm ci` y `npm start`.
+4. En `frontend`, ejecuta `npm ci` y `npm start`. La interfaz usa la API en `http://localhost:5080/api`.
 
 ## API
 
@@ -48,4 +48,4 @@ Salvo el inicio de sesión, las rutas requieren `Authorization: Bearer <token>`.
 
 ## Capturas
 
-Las capturas de la aplicación se guardan en `docs/screenshots/`.
+Las capturas de inicio de sesión y del panel se guardan en `docs/screenshots/`.

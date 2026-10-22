@@ -23,6 +23,7 @@ public sealed class Product
 
     public void Update(string sku, string name, string? description, decimal unitPrice, int minimumStock)
     {
+        // Centraliza validación y normalización para proteger el modelo de dominio.
         if (string.IsNullOrWhiteSpace(sku) || sku.Length > 40)
             throw new ArgumentException("El SKU es obligatorio y admite hasta 40 caracteres.");
         if (string.IsNullOrWhiteSpace(name) || name.Length > 140)

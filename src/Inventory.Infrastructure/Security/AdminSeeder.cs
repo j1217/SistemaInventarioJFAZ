@@ -18,6 +18,7 @@ public sealed class AdminSeeder(
         var password = configuration["Seed:AdminPassword"];
         if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(password))
         {
+            // Conserva la cuenta existente y crea el administrador solo una vez.
             var normalizedEmail = email.Trim().ToLowerInvariant();
             if (!await database.Users.AnyAsync(x => x.Email == normalizedEmail, cancellationToken))
             {

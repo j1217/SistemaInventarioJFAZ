@@ -9,6 +9,7 @@ public sealed class InventoryService(IInventoryRepository inventory, IProductRep
 {
     public Task<IReadOnlyList<InventoryItemDto>> GetCurrentAsync(CancellationToken cancellationToken) => inventory.GetCurrentAsync(cancellationToken);
 
+    // Limita la consulta para mantener acotado el tamaño de la respuesta.
     public Task<IReadOnlyList<MovementDto>> GetRecentAsync(int take, CancellationToken cancellationToken) =>
         inventory.GetRecentAsync(Math.Clamp(take, 1, 100), cancellationToken);
 
@@ -22,6 +23,7 @@ public sealed class InventoryService(IInventoryRepository inventory, IProductRep
             throw new NotFoundException("El producto solicitado no existe.");
 
         await inventory.RegisterAsync(productId, userId, type, quantity, note, cancellationToken);
+        // Lee el saldo confirmado por PostgreSQL después del movimiento.
         var current = await inventory.GetCurrentAsync(cancellationToken);
         var item = current.Single(x => x.ProductId == productId);
         return new MovementResultDto(productId, type.ToString(), quantity, item.CurrentStock, DateTimeOffset.UtcNow);
