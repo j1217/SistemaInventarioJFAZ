@@ -1,8 +1,9 @@
 using Inventory.Domain.Users;
+using Inventory.Application.Contracts;
 
 namespace Inventory.Application.Abstractions;
 
 public interface ITokenService
 {
-    string CreateToken(UserAccount user);
+    IssuedToken CreateToken(UserAccount user);
 }

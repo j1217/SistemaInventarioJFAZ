@@ -9,9 +9,11 @@ public sealed class AuthenticationService(IUserRepository users, IPasswordHasher
     public async Task<LoginResultDto> LoginAsync(string email, string password, CancellationToken cancellationToken)
     {
         var user = await users.GetByEmailAsync(email.Trim().ToLowerInvariant(), cancellationToken);
+        // El mensaje genérico evita revelar si una cuenta existe.
         if (user is null || !user.IsActive || !passwords.Verify(password, user.PasswordHash))
             throw new UnauthorizedException("El correo o la contraseña no son correctos.");
 
-        return new LoginResultDto(tokens.CreateToken(user), DateTimeOffset.UtcNow.AddMinutes(60), user.Email, user.Role);
+        var issuedToken = tokens.CreateToken(user);
+        return new LoginResultDto(issuedToken.AccessToken, issuedToken.ExpiresAt, user.Email, user.Role);
     }
 }

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Inventory.Application.Abstractions;
+using Inventory.Application.Contracts;
 using Inventory.Domain.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +11,7 @@ namespace Inventory.Infrastructure.Security;
 
 public sealed class JwtTokenService(IConfiguration configuration) : ITokenService
 {
-    public string CreateToken(UserAccount user)
+    public IssuedToken CreateToken(UserAccount user)
     {
         var secret = configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Falta configurar Jwt:Secret.");
         if (Encoding.UTF8.GetByteCount(secret) < 32)
@@ -24,14 +25,14 @@ public sealed class JwtTokenService(IConfiguration configuration) : ITokenServic
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role)
         };
-        var expires = DateTime.UtcNow.AddMinutes(configuration.GetValue("Jwt:ExpirationMinutes", 60));
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(configuration.GetValue("Jwt:ExpirationMinutes", 60));
         var token = new JwtSecurityToken(
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
             claims: claims,
-            expires: expires,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new IssuedToken(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }
