@@ -31,6 +31,10 @@ El script `database/init.sql` se ejecuta automáticamente al crear por primera v
 3. Desde la raíz, ejecuta `dotnet run --project src/Inventory.Api`.
 4. En `frontend`, ejecuta `npm ci` y `npm start`. La interfaz usa la API en `http://localhost:5080/api`.
 
+## Pruebas automatizadas
+
+Desde la raíz del repositorio, ejecuta `dotnet test InventoryManagement.sln`. Las pruebas cubren validaciones del producto y reglas del servicio de inventario, incluyendo cantidades inválidas, salidas y límites de consulta.
+
 ## API
 
 | Método | Ruta | Uso |
