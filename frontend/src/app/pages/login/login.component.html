@@ -1,0 +1,59 @@
+<main class="login-shell">
+  <section class="login-story" aria-label="Sistema de inventario">
+    <div class="story-top">
+      <a class="brand" href="/login" aria-label="Nexo Inventario, inicio">
+        <span class="brand-mark"><svg><use href="#icon-box" /></svg></span>
+        <span>Nexo<span class="brand-light">inventario</span></span>
+      </a>
+      <span class="story-tag"><span class="online-dot"></span> CONTROL EN TIEMPO REAL</span>
+    </div>
+    <div class="story-copy">
+      <p class="eyebrow">ORDEN QUE IMPULSA</p>
+      <h1>Todo tu inventario.<br /><span>En una sola vista.</span></h1>
+      <p class="story-description">Conoce qué tienes, qué se mueve y qué necesitas reponer. Sin perder de vista ningún detalle.</p>
+    </div>
+    <div class="preview-card">
+      <div class="preview-head"><div><span class="preview-label">VALOR DEL INVENTARIO</span><strong>$ 8.420.500</strong></div><span class="preview-trend"><svg><use href="#icon-up" /></svg> 12,8%</span></div>
+      <div class="mini-chart" aria-hidden="true"><span style="--h:35%"></span><span style="--h:46%"></span><span style="--h:40%"></span><span style="--h:58%"></span><span style="--h:52%"></span><span style="--h:70%"></span><span style="--h:62%"></span><span style="--h:78%"></span><span style="--h:73%"></span><span style="--h:92%"></span><span style="--h:82%"></span><span style="--h:100%"></span></div>
+      <div class="chart-labels"><span>1 JUN</span><span>15 JUN</span><span>30 JUN</span></div>
+      <div class="preview-foot"><span><i class="legend-dot"></i> Valor en existencias</span><span>Este mes <svg><use href="#icon-chevron" /></svg></span></div>
+    </div>
+    <div class="story-bottom"><span>Hecho para trabajar con claridad.</span><span>© 2026 Nexo Inventario</span></div>
+  </section>
+
+  <section class="login-panel">
+    <div class="mobile-brand brand"><span class="brand-mark"><svg><use href="#icon-box" /></svg></span><span>Nexo<span class="brand-light">inventario</span></span></div>
+    <div class="login-content">
+      <div class="welcome-icon"><svg><use href="#icon-grid" /></svg></div>
+      <p class="eyebrow">TU ESPACIO DE TRABAJO</p>
+      <h2>Qué bueno tenerte<br />de vuelta.</h2>
+      <p class="login-subtitle">Ingresa tus datos para continuar.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrap" [class.invalid]="form.controls.email.touched && form.controls.email.invalid">
+          <span class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <input id="email" type="email" formControlName="email" autocomplete="username" placeholder="nombre@empresa.com" />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.invalid) { <span class="field-error">Ingresa un correo válido.</span> }
+
+        <div class="password-label"><label for="password">Contraseña</label><a href="mailto:soporte@inventario.local?subject=Recuperar%20acceso">¿La olvidaste?</a></div>
+        <div class="input-wrap" [class.invalid]="form.controls.password.touched && form.controls.password.invalid">
+          <span class="field-icon"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></span>
+          <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="••••••••••••" />
+          <button class="eye-button" type="button" (click)="togglePassword()" [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            @if (showPassword()) { <svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A11 11 0 0 1 12 5c5 0 8.5 3.5 10 7-0.6 1.5-1.5 2.8-2.6 3.8M6.2 6.2A12 12 0 0 0 2 12c1.5 3.5 5 7 10 7 1.1 0 2.1-.2 3-.5"/></svg> } @else { <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg> }
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) { <span class="field-error">La contraseña debe tener al menos 8 caracteres.</span> }
+
+        @if (errorMessage()) { <div class="login-error" role="alert"><span>!</span>{{ errorMessage() }}</div> }
+        <button class="submit-button" type="submit" [disabled]="loading()">
+          @if (loading()) { <span class="spinner"></span> Validando acceso } @else { Iniciar sesión <svg><use href="#icon-chevron" /></svg> }
+        </button>
+      </form>
+      <div class="secure-note"><span class="secure-lock"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span>Tus datos están protegidos con conexión segura.</span></div>
+    </div>
+    <p class="help-note">¿Necesitas ayuda? <a href="mailto:soporte@inventario.local">Contacta a soporte</a></p>
+  </section>
+</main>

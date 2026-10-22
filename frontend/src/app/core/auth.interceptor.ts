@@ -1,0 +1,10 @@
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
+
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
+  const token = inject(AuthService).token();
+  // Login is public; inventory requests use the current bearer token.
+  if (!token || request.url.endsWith('/auth/login')) return next(request);
+  return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
+};

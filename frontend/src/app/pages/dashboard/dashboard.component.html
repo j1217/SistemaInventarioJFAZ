@@ -1,0 +1,136 @@
+<div class="dashboard-shell">
+  <button class="mobile-scrim" [class.visible]="menuOpen()" (click)="menuOpen.set(false)" aria-label="Cerrar menú"></button>
+  <aside class="sidebar" [class.open]="menuOpen()">
+    <a class="brand" href="/dashboard"><span class="brand-mark"><svg><use href="#icon-box" /></svg></span><span>Nexo<span class="brand-light">inventario</span></span></a>
+    <div class="workspace-switch"><span class="workspace-avatar">N</span><span class="workspace-copy"><strong>Norte estudio</strong><small>Plan profesional</small></span><svg class="workspace-chevron"><use href="#icon-chevron" /></svg></div>
+    <p class="nav-label">ESPACIO DE TRABAJO</p>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button class="nav-item active" (click)="moveTo('overview')"><svg><use href="#icon-grid" /></svg><span>Resumen</span></button>
+      <button class="nav-item" (click)="moveTo('inventory')"><svg><use href="#icon-box" /></svg><span>Inventario</span><span class="nav-count">{{ products().length }}</span></button>
+      <button class="nav-item" (click)="moveTo('movements')"><svg><use href="#icon-move" /></svg><span>Movimientos</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="help-card"><span class="help-glyph">?</span><div><strong>¿Necesitas ayuda?</strong><small>Visita el centro de ayuda</small></div><svg><use href="#icon-chevron" /></svg></div>
+      <div class="sidebar-user"><span class="user-avatar">{{ userInitials() }}</span><span class="user-copy"><strong>{{ auth.currentUser()?.email }}</strong><small>Administrador</small></span><button (click)="logout()" aria-label="Cerrar sesión" title="Cerrar sesión"><svg><use href="#icon-logout" /></svg></button></div>
+    </div>
+  </aside>
+
+  <main class="main-area" id="overview">
+    <header class="topbar">
+      <button class="mobile-menu" (click)="menuOpen.set(true)" aria-label="Abrir menú"><svg><use href="#icon-menu" /></svg></button>
+      <div class="breadcrumb"><span>Workspace</span><svg><use href="#icon-chevron" /></svg><strong>Resumen</strong></div>
+      <div class="topbar-actions"><span class="today-label"><svg><use href="#icon-clock" /></svg>{{ dateLabel }}</span><span class="topbar-divider"></span><button class="icon-button notification-button" aria-label="Notificaciones"><svg><use href="#icon-bell" /></svg><i></i></button><span class="top-avatar">{{ userInitials() }}</span></div>
+    </header>
+
+    <div class="page-content">
+      <section class="welcome-row">
+        <div><p class="eyebrow">RESUMEN DE INVENTARIO</p><h1>Hola, {{ displayName() }} <span class="wave">✳</span></h1><p class="welcome-description">Aquí tienes el estado de tu inventario hoy.</p></div>
+        <div class="welcome-actions"><button class="button button-secondary" (click)="openProduct()"><svg><use href="#icon-plus" /></svg> Nuevo producto</button><button class="button button-primary" (click)="openMovement('entries')"><svg><use href="#icon-plus" /></svg> Registrar entrada</button></div>
+      </section>
+
+      <section class="metrics-grid" aria-label="Resumen del inventario">
+        <article class="metric-card">
+          <div class="metric-head"><span class="metric-icon green"><svg><use href="#icon-box" /></svg></span><span class="metric-period">En almacén</span></div>
+          <p class="metric-label">Unidades disponibles</p><div class="metric-value-row"><strong>{{ totalUnits() | number }}</strong><span class="metric-note">unidades</span></div>
+          <div class="metric-footer"><span class="metric-dot green-dot"></span><span>En {{ products().length }} productos activos</span><svg class="metric-arrow"><use href="#icon-up" /></svg></div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-head"><span class="metric-icon blue"><svg><use href="#icon-grid" /></svg></span><span class="metric-period">Catálogo</span></div>
+          <p class="metric-label">Productos registrados</p><div class="metric-value-row"><strong>{{ products().length | number:'2.0-0' }}</strong><span class="metric-note">referencias</span></div>
+          <div class="metric-footer"><span class="metric-dot blue-dot"></span><span>Todo tu catálogo en un lugar</span><svg class="metric-arrow"><use href="#icon-up" /></svg></div>
+        </article>
+        <article class="metric-card" [class.metric-attention]="lowStockItems().length > 0">
+          <div class="metric-head"><span class="metric-icon amber"><svg><use href="#icon-chart" /></svg></span><span class="metric-period">Atención</span></div>
+          <p class="metric-label">Productos por reponer</p><div class="metric-value-row"><strong>{{ lowStockItems().length | number:'2.0-0' }}</strong><span class="metric-note">referencias</span></div>
+          <div class="metric-footer"><span class="metric-dot amber-dot"></span><span>{{ lowStockItems().length ? 'Revisa tus niveles mínimos' : 'Niveles saludables' }}</span><svg class="metric-arrow"><use href="#icon-up" /></svg></div>
+        </article>
+        <article class="metric-card value-card">
+          <div class="metric-head"><span class="metric-icon violet"><svg><use href="#icon-up" /></svg></span><span class="metric-period">Valorizado</span></div>
+          <p class="metric-label">Valor en existencias</p><div class="metric-value-row"><strong class="currency-value">{{ currency(totalValue()) }}</strong></div>
+          <div class="metric-footer"><span class="metric-dot violet-dot"></span><span>Según el costo por unidad</span><svg class="metric-arrow"><use href="#icon-up" /></svg></div>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel inventory-panel" id="inventory">
+          <div class="panel-heading"><div><div class="panel-title-line"><h2>Existencias</h2><span class="soft-count">{{ inventory().length }}</span></div><p>Consulta y administra tus productos.</p></div><button class="text-action" (click)="openProduct()">Ver catálogo <svg><use href="#icon-chevron" /></svg></button></div>
+          <div class="table-toolbar"><label class="search-box"><svg><use href="#icon-search" /></svg><input aria-label="Buscar productos" placeholder="Buscar producto o SKU..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" /></label><label class="filter-select"><svg><use href="#icon-filter" /></svg><select aria-label="Filtrar por estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"><option>Todos</option><option>Disponible</option><option>Stock bajo</option><option>Sin existencias</option></select></label></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>PRODUCTO</th><th>SKU</th><th>PRECIO</th><th>DISPONIBILIDAD</th><th>ESTADO</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+              <tbody>
+                @for (item of filteredInventory(); track item.productId) {
+                  <tr>
+                    <td><div class="product-cell"><span class="product-mark" [class.mint]="item.sku.startsWith('TEC')" [class.lilac]="item.sku.startsWith('ACC')"><svg><use href="#icon-box" /></svg></span><span class="product-name-wrap"><strong>{{ item.name }}</strong><small>{{ category(item.sku) }}</small></span></div></td>
+                    <td><span class="sku-code">{{ item.sku }}</span></td>
+                    <td><span class="price-cell">{{ currency(item.unitPrice) }}</span></td>
+                    <td><div class="stock-cell"><div class="stock-track"><span [class.low]="item.status !== 'Disponible'" [style.width.%]="stockWidth(item)"></span></div><strong>{{ item.currentStock }}</strong><small>/ {{ item.minimumStock }} mín.</small></div></td>
+                    <td><span class="status-pill" [class.available]="item.status === 'Disponible'" [class.low-stock]="item.status === 'Stock bajo'" [class.no-stock]="item.status === 'Sin existencias'"><i></i>{{ item.status }}</span></td>
+                    <td><button class="row-menu" [attr.aria-label]="'Registrar movimiento para ' + item.name" (click)="openMovement('entries', item.productId)"><svg><use href="#icon-plus" /></svg></button></td>
+                  </tr>
+                } @empty {
+                  <tr><td class="empty-state" colspan="6">{{ loading() ? 'Cargando existencias…' : 'No encontramos productos con esos filtros.' }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="table-caption"><span>Mostrando <strong>{{ filteredInventory().length }}</strong> de {{ inventory().length }} productos</span><button (click)="refresh()">Actualizar lista <svg><use href="#icon-up" /></svg></button></div>
+        </article>
+
+        <article class="panel attention-panel">
+          <div class="panel-heading"><div><div class="panel-title-line"><h2>Para revisar</h2><span class="attention-count" [class.clear]="lowStockItems().length === 0">{{ lowStockItems().length }}</span></div><p>Niveles en el mínimo o por debajo.</p></div><span class="attention-symbol"><svg><use href="#icon-chart" /></svg></span></div>
+          <div class="attention-list">
+            @for (item of lowStockItems().slice(0, 5); track item.productId) {
+              <div class="attention-item"><span class="attention-icon" [class.out]="item.currentStock === 0"><svg><use href="#icon-box" /></svg></span><div class="attention-copy"><strong>{{ item.name }}</strong><small>{{ item.sku }} <span>·</span> Mínimo {{ item.minimumStock }}</small></div><div class="attention-stock"><strong>{{ item.currentStock }}</strong><small>unid.</small></div><button class="replenish-button" (click)="openMovement('entries', item.productId)" [attr.aria-label]="'Reponer ' + item.name"><svg><use href="#icon-plus" /></svg></button></div>
+            } @empty {
+              <div class="all-clear"><span><svg><use href="#icon-check" /></svg></span><strong>Todo está en orden</strong><p>No hay productos por debajo de su nivel mínimo.</p></div>
+            }
+          </div>
+          @if (lowStockItems().length > 5) { <button class="panel-bottom-action" (click)="statusFilter.set('Stock bajo'); moveTo('inventory')">Ver {{ lowStockItems().length - 5 }} alertas más <svg><use href="#icon-chevron" /></svg></button> }
+          <div class="attention-foot"><span class="attention-foot-dot"></span> Revisa estos niveles para evitar quedarte sin existencias.</div>
+        </article>
+      </section>
+
+      <section class="panel movements-panel" id="movements">
+        <div class="panel-heading"><div><div class="panel-title-line"><h2>Actividad reciente</h2><span class="soft-count">{{ movements().length }}</span></div><p>Últimos movimientos registrados en el inventario.</p></div><button class="text-action" (click)="refresh()">Ver actividad <svg><use href="#icon-chevron" /></svg></button></div>
+        <div class="table-wrap movement-wrap"><table class="movement-table"><thead><tr><th>MOVIMIENTO</th><th>PRODUCTO</th><th>FECHA Y HORA</th><th>REGISTRADO POR</th><th>CANTIDAD</th></tr></thead><tbody>
+          @for (movement of movements(); track movement.id) {
+            <tr><td><span class="movement-type" [class.entry]="movement.type === 'Entrada'" [class.exit]="movement.type === 'Salida'"><svg><use [attr.href]="movement.type === 'Entrada' ? '#icon-up' : '#icon-down'" /></svg>{{ movement.type }}</span></td><td><div class="movement-product"><strong>{{ movement.productName }}</strong><small>{{ movement.sku }} <span>·</span> {{ movement.note || 'Sin nota' }}</small></div></td><td><span class="movement-date">{{ dateTime(movement.createdAt) }}</span></td><td><span class="operator-cell"><i>{{ movement.performedBy.slice(0, 1).toUpperCase() }}</i>{{ movement.performedBy }}</span></td><td><strong class="quantity-value" [class.positive]="movement.type === 'Entrada'" [class.negative]="movement.type === 'Salida'">{{ movement.type === 'Entrada' ? '+' : '−' }}{{ movement.quantity }} unid.</strong></td></tr>
+          } @empty {
+            <tr><td class="empty-state" colspan="5">{{ loading() ? 'Cargando movimientos…' : 'Aún no hay movimientos registrados.' }}</td></tr>
+          }
+        </tbody></table></div>
+      </section>
+      <footer class="page-footer"><span>© 2026 Nexo Inventario</span><span>Los movimientos quedan registrados para tu trazabilidad.</span></footer>
+    </div>
+  </main>
+</div>
+
+@if (modal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <section class="modal-card" role="dialog" aria-modal="true" [attr.aria-labelledby]="modal() === 'product' ? 'product-title' : 'movement-title'" (click)="$event.stopPropagation()">
+      <div class="modal-heading"><span class="modal-icon"><svg><use [attr.href]="modal() === 'product' ? '#icon-box' : '#icon-move'" /></svg></span><button class="modal-close" (click)="closeModal()" aria-label="Cerrar"><svg><use href="#icon-close" /></svg></button></div>
+      @if (modal() === 'product') {
+        <h2 id="product-title">Agregar producto</h2><p class="modal-subtitle">Completa los datos para incluirlo en tu catálogo.</p>
+        <form [formGroup]="productForm" (ngSubmit)="submitProduct()" class="modal-form">
+          <label>Código SKU<input formControlName="sku" placeholder="Ej. TEC-005" /></label>
+          <label>Nombre del producto<input formControlName="name" placeholder="Nombre descriptivo" /></label>
+          <label>Descripción <span class="optional">Opcional</span><input formControlName="description" placeholder="Detalle breve del producto" /></label>
+          <div class="form-row"><label>Precio por unidad<div class="currency-input"><span>$</span><input type="number" min="0" formControlName="unitPrice" /></div></label><label>Stock mínimo<input type="number" min="0" formControlName="minimumStock" /></label></div>
+          <div class="modal-actions"><button type="button" class="button button-secondary" (click)="closeModal()">Cancelar</button><button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar producto' }}</button></div>
+        </form>
+      } @else {
+        <h2 id="movement-title">Registrar {{ movementKind() === 'entries' ? 'entrada' : 'salida' }}</h2><p class="modal-subtitle">El movimiento quedará asociado a tu usuario.</p>
+        <div class="movement-switch"><button [class.selected]="movementKind() === 'entries'" (click)="openMovement('entries', movementForm.controls.productId.value)"><svg><use href="#icon-up" /></svg> Entrada</button><button [class.selected]="movementKind() === 'exits'" (click)="openMovement('exits', movementForm.controls.productId.value)"><svg><use href="#icon-down" /></svg> Salida</button></div>
+        <form [formGroup]="movementForm" (ngSubmit)="submitMovement()" class="modal-form">
+          <label>Producto<select formControlName="productId"><option value="" disabled>Selecciona un producto</option>@for (product of products(); track product.id) { <option [value]="product.id">{{ product.name }} · {{ product.sku }}</option> }</select></label>
+          <label>Cantidad<input type="number" min="1" formControlName="quantity" placeholder="1" /></label>
+          <label>Nota <span class="optional">Opcional</span><textarea rows="3" formControlName="note" placeholder="Motivo o referencia del movimiento"></textarea></label>
+          <div class="modal-actions"><button type="button" class="button button-secondary" (click)="closeModal()">Cancelar</button><button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Registrando…' : 'Confirmar movimiento' }}</button></div>
+        </form>
+      }
+    </section>
+  </div>
+}
+
+@if (alertMessage()) { <div class="toast" [class.error]="alertKind() === 'error'" role="status"><span><svg><use [attr.href]="alertKind() === 'error' ? '#icon-close' : '#icon-check'" /></svg></span>{{ alertMessage() }}</div> }
