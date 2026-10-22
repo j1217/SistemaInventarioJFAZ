@@ -35,6 +35,8 @@ El script `database/init.sql` se ejecuta automáticamente al crear por primera v
 
 Desde la raíz del repositorio, ejecuta `dotnet test InventoryManagement.sln`. Las pruebas cubren validaciones del producto y reglas del servicio de inventario, incluyendo cantidades inválidas, salidas y límites de consulta.
 
+GitHub Actions ejecuta las pruebas automáticamente en cada push y pull request. También se puede iniciar manualmente desde la pestaña **Actions** del repositorio.
+
 ## API
 
 | Método | Ruta | Uso |
@@ -52,4 +54,10 @@ Salvo el inicio de sesión, las rutas requieren `Authorization: Bearer <token>`.
 
 ## Capturas
 
-Las capturas de inicio de sesión y del panel se guardan en `docs/screenshots/`.
+Las capturas de la aplicación están disponibles en `docs/screenshots/`:
+
+- [Inicio de sesión](docs/screenshots/inicio-sesion.png)
+- [Panel de inventario](docs/screenshots/panel-inventario.png)
+- [Registro de producto](docs/screenshots/producto-nuevo.png)
+- [Registro de entrada](docs/screenshots/entrada-inventario.png)
+- [Registro de salida](docs/screenshots/salida-inventario.png)
