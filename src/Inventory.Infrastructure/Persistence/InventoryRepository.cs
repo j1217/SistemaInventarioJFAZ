@@ -17,6 +17,7 @@ public sealed class InventoryRepository(InventoryDbContext database) : IInventor
             : "CALL register_stock_exit({0}, {1}, {2}, {3})";
         try
         {
+            // The enum selects the procedure; movement values remain parameterized.
             await database.Database.ExecuteSqlRawAsync(procedure,
                 new object[] { productId, quantity, note ?? (object)DBNull.Value, userId }, cancellationToken);
         }
