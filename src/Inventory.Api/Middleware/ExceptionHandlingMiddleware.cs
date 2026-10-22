@@ -13,6 +13,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
         }
         catch (Exception exception)
         {
+            // Traduce errores de aplicación al formato HTTP ProblemDetails.
             var (status, title) = exception switch
             {
                 NotFoundException => (StatusCodes.Status404NotFound, "No encontrado"),

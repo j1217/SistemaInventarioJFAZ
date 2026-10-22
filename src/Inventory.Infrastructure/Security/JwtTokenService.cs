@@ -25,6 +25,7 @@ public sealed class JwtTokenService(IConfiguration configuration) : ITokenServic
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role)
         };
+        // Comparte la misma expiración entre el JWT y la respuesta de inicio de sesión.
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(configuration.GetValue("Jwt:ExpirationMinutes", 60));
         var token = new JwtSecurityToken(
             issuer: configuration["Jwt:Issuer"],

@@ -46,6 +46,7 @@ builder.Services.AddRateLimiter(options => options.AddPolicy("login", context =>
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions
         {
+            // Limita intentos repetidos de inicio de sesión por dirección IP.
             PermitLimit = 10,
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0,

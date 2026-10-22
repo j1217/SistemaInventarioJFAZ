@@ -17,7 +17,7 @@ public sealed class InventoryRepository(InventoryDbContext database) : IInventor
             : "CALL register_stock_exit({0}, {1}, {2}, {3})";
         try
         {
-            // The enum selects the procedure; movement values remain parameterized.
+            // El tipo elige el procedimiento; los valores se envían parametrizados.
             await database.Database.ExecuteSqlRawAsync(procedure,
                 new object[] { productId, quantity, note ?? (object)DBNull.Value, userId }, cancellationToken);
         }
@@ -41,7 +41,7 @@ public sealed class InventoryRepository(InventoryDbContext database) : IInventor
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         try
         {
-            // PostgreSQL devuelve el resultado del procedimiento mediante un cursor transaccional.
+            // El cursor debe consultarse dentro de la misma transacción.
             await using (var call = new NpgsqlCommand("CALL get_current_inventory(@cursor)", connection, transaction))
             {
                 call.Parameters.Add(new NpgsqlParameter("cursor", NpgsqlDbType.Refcursor)

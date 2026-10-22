@@ -25,6 +25,7 @@ public sealed class ProductRepository(InventoryDbContext database) : IProductRep
         }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         {
+            // La restricción de PostgreSQL protege también escrituras simultáneas.
             throw new Inventory.Application.Errors.ConflictException("Ya existe un producto con ese SKU.");
         }
     }

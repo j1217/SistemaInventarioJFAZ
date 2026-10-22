@@ -15,6 +15,7 @@ public sealed class ProductService(IProductRepository products)
 
     public async Task<ProductDto> CreateAsync(string sku, string name, string? description, decimal unitPrice, int minimumStock, CancellationToken cancellationToken)
     {
+        // Normaliza el SKU antes de revisar la unicidad.
         var normalizedSku = sku.Trim().ToUpperInvariant();
         if (await products.SkuExistsAsync(normalizedSku, cancellationToken))
             throw new ConflictException("Ya existe un producto con ese SKU.");

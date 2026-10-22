@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = inject(AuthService).token();
-  // Login is public; inventory requests use the current bearer token.
+  // El login es público; las demás solicitudes usan el token vigente.
   if (!token || request.url.endsWith('/auth/login')) return next(request);
   return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
 };
