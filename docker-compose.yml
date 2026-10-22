@@ -1,0 +1,51 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_inventory_db_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - inventory-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d inventory"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  api:
+    build:
+      context: .
+      dockerfile: src/Inventory.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=database;Port=5432;Database=inventory;Username=postgres;Password=${POSTGRES_PASSWORD:-local_inventory_db_2026}
+      Jwt__Secret: ${JWT_SECRET:-local-only-key-change-before-production-2026}
+      Jwt__Issuer: Inventory.Api
+      Jwt__Audience: Inventory.Angular
+      Jwt__ExpirationMinutes: 60
+      FrontendOrigin: http://localhost:4200
+      Seed__AdminEmail: ${ADMIN_EMAIL:-admin@inventario.local}
+      Seed__AdminPassword: ${ADMIN_PASSWORD:-InventoryDemo2026!}
+      Seed__LoadDemoData: "true"
+    ports:
+      - "5080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+
+volumes:
+  inventory-data:
